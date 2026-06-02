@@ -1,1 +1,0 @@
-server=localhost;database=thuvienso;user=root;password=;Allow User Variables=true
