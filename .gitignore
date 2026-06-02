@@ -12,9 +12,6 @@ obj/
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-
 # Visual Studio Code
 .vscode/
 
@@ -26,11 +23,12 @@ wwwroot/uploads/
 wwwroot/temp/
 wwwroot/documents/
 
-# Configuration secrets
+# Configuration secrets 
+appsettings.json
 appsettings.Development.json
 secrets.json
 
-# Node modules (nếu có frontend dùng npm)
+# Node modules
 node_modules/
 
 # Packages (nuget)
@@ -49,3 +47,10 @@ TestResults/
 *.pdb
 .vs/
 Migrations/
+
+# Chặn các file trong thư mục logs
+logs/*
+!logs/.gitkeep
+
+# Chặn các file backup tạm thời
+*.tmp
