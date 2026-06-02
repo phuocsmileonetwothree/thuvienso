@@ -1,86 +1,46 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using thuvienso.Data;
+using thuvienso.Repositories;
 
 namespace thuvienso.Controllers.Admin;
 
+/// <summary>
+/// Controller xử lý dữ liệu bảng điều khiển (Dashboard) trung tâm khu vực Admin.
+/// Sử dụng Pattern Repository để tách biệt hoàn toàn logic truy vấn khỏi tầng Controller.
+/// </summary>
 [Authorize(Roles = "admin")]
 [Route("admin")]
 public class DashboardController : Controller
 {
-    private readonly AppDbContext _context;
+    private readonly DocumentRepository _docRepo;
+    private readonly OrderRepository _orderRepo;
 
-    public DashboardController(AppDbContext context)
+    public DashboardController(DocumentRepository docRepo, OrderRepository orderRepo)
     {
-        _context = context;
+        _docRepo = docRepo;
+        _orderRepo = orderRepo;
     }
 
+    /// <summary>
+    /// Tổng hợp số liệu thống kê, danh sách tài liệu hàng đầu và các đơn hàng gần đây để hiển thị lên Dashboard
+    /// </summary>
     [HttpGet("dashboard")]
     public async Task<IActionResult> Dashboard()
     {
-        // Tổng quan
-        ViewBag.TotalViews = await _context.Documents.SumAsync(d => d.View);
-        ViewBag.TotalDownloads = await _context.Documents.SumAsync(d => d.Download);
-        ViewBag.TotalQrScans = await _context.QRCodes.SumAsync(q => q.ScanCount);
-        ViewBag.TotalRevenue = await _context.Payments
-            .Where(o => o.PaymentStatus == "paid")
-            .SumAsync(o => o.PricePaid);
+        // Khối dữ liệu tổng quan (Tổng lượt xem, lượt tải, quét QR và doanh thu)
+        ViewBag.TotalViews = await _docRepo.GetTotalViewsAsync();
+        ViewBag.TotalDownloads = await _docRepo.GetTotalDownloadsAsync();
+        ViewBag.TotalQrScans = await _docRepo.GetTotalQrScansAsync();
+        ViewBag.TotalRevenue = await _orderRepo.GetTotalRevenueAsync();
 
-        // 4 bảng top
-        ViewBag.TopViewed = await _context.Documents
-            .OrderByDescending(d => d.View)
-            .Take(10)
-            .ToListAsync();
+        // Khối bảng xếp hạng hiệu suất tài liệu (Top 10 theo từng tiêu chí)
+        ViewBag.TopViewed = await _docRepo.GetTopViewedAsync(10);
+        ViewBag.TopDownloaded = await _docRepo.GetTopDownloadedAsync(10);
+        ViewBag.TopPurchased = await _docRepo.GetTopPurchasedAsync(10);
+        ViewBag.TopRevenue = await _orderRepo.GetTopRevenueDocumentsAsync(10);
 
-        ViewBag.TopDownloaded = await _context.Documents
-            .OrderByDescending(d => d.Download)
-            .Take(10)
-            .ToListAsync();
-
-        ViewBag.TopPurchased = await _context.Documents
-            .OrderByDescending(d => d.Purchase)
-            .Take(10)
-            .Select(d => new { d.Id, d.Title, PurchaseCount = d.Purchase })
-            .ToListAsync();
-
-        ViewBag.TopRevenue = await _context.Payments
-            .Where(o => o.PaymentStatus == "paid")
-            .GroupBy(o => o.DocumentId)
-            .Select(g => new {
-                DocumentId = g.Key,
-                Revenue = g.Sum(x => x.PricePaid)
-            })
-            .OrderByDescending(g => g.Revenue)
-            .Take(10)
-            .Join(_context.Documents, g => g.DocumentId, d => d.Id,
-                (g, d) => new { d.Id, d.Title, Revenue = g.Revenue })
-            .ToListAsync();
-
-        ViewBag.RecentOrders = await _context.Payments
-            .Include(p => p.User)
-            .Include(p => p.Document)
-            .OrderByDescending(p => p.CreatedAt)
-            .Take(10)
-            .Select(p => new
-            {
-                p.Id,
-                p.OrderCode,
-                p.PaymentStatus,
-                p.PercentPaid,
-                p.TotalPrice,
-                p.PricePaid,
-                p.QrCodeUrl,
-                p.CheckoutUrl,
-                p.TransactionTime,
-                p.CreatedAt,
-                UserFullName = p.User.Name,
-                Phone = p.User.Phone,
-                Email = p.User.Email,
-                DocumentTitle = p.Document.Title
-            })
-            .ToListAsync();
-
+        // Khối danh sách lịch sử giao dịch đơn hàng mới nhất
+        ViewBag.RecentOrders = await _orderRepo.GetRecentOrdersWithSummaryAsync(10);
 
         return View("Views/Admin/Dashboard.cshtml");
     }

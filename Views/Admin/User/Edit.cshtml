@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Trang Sửa Người Dùng";
     Layout = "~/Views/Shared/Admin/_Layout.cshtml";
 }
@@ -45,8 +45,8 @@
                         <div class="form-group mt-3">
                             <label for="role">Vai trò</label>
                             <select name="role" id="role" class="form-control" required>
-                                <option value="user" selected="@(Model.Role == "user" ? "selected" : null)">User</option>
-                                <option value="admin" selected="@(Model.Role == "admin" ? "selected" : null)">Admin</option>
+                                <option value="user" selected="@(Model.Role == UserRole.user ? "selected" : null)">User</option>
+                                <option value="admin" selected="@(Model.Role == UserRole.admin ? "selected" : null)">Admin</option>
                             </select>
                             @if (!ViewData.ModelState.IsValid && ViewData.ModelState["Role"]?.Errors.Count > 0)
                             {
@@ -58,7 +58,7 @@
             </div>
 
             <div class="col-12 mt-3 text-end">
-                <a href="/admin/user" class="btn btn-secondary">Huỷ</a>
+				<a keep-filter href="/admin/user" class="btn btn-secondary">Huỷ</a>
                 <input type="submit" value="Lưu" class="btn btn-success">
             </div>
         </form>

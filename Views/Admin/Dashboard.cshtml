@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Trang Quản Trị";
     Layout = "~/Views/Shared/Admin/_Layout.cshtml"; 
 }
@@ -204,12 +204,12 @@
                                 <tbody>
                                     @if (ViewBag.TopPurchased != null)
                                     {
-                                        foreach (var item in ViewBag.TopPurchased)
+										foreach (var item in(List<thuvienso.Models.Document>) ViewBag.TopPurchased)
                                         {
                                             <tr>
                                                 <td>@item.Id</td>
                                                 <td>@item.Title</td>
-                                                <td><span class="">@(item.PurchaseCount > 0 ? item.PurchaseCount : 0)</span></td>
+												<td><span class="">@(item.Purchase > 0 ? item.Purchase : 0)</span></td>
                                             </tr>
                                         }
                                     }
@@ -296,83 +296,50 @@
 
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table m-0 table-hover text-nowrap">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Người mua</th>
-                                        <th>Mã đơn</th>
-                                        <th>Tài liệu</th>
-                                        <th>Trạng thái</th>
-                                        <th>% Đã trả</th>
-                                        <th>Chi phí gốc</th>
-                                        <th>Đã thanh toán</th>
-                                        <th>QR</th>
-                                        <th>Link thanh toán</th>
-                                        <th>Thanh toán lúc</th>
-                                        <th>Tạo đơn lúc</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (ViewBag.RecentOrders != null)
-                                    {
-                                        foreach (var o in ViewBag.RecentOrders)
-                                        {
-                                            <tr>
-                                                <td>@o.Id</td>
-                                                <td>@o.UserFullName <br /> <small>@o.Email</small> <br /><small>@o.Phone</small></td>
-                                                <td>@o.OrderCode</td>
-                                                <td>@o.DocumentTitle</td>
-                                                <td>
-                                                    @{
-                                                        string badgeClass = "secondary";
-                                                        string statusText = "Không rõ";
-
-                                                        switch (o.PaymentStatus)
-                                                        {
-                                                            case "paid":
-                                                                badgeClass = "success";
-                                                                statusText = "Đã thanh toán";
-                                                                break;
-                                                            case "pending":
-                                                                badgeClass = "warning";
-                                                                statusText = "Đang chờ thanh toán";
-                                                                break;
-                                                            case "failed":
-                                                                badgeClass = "danger";
-                                                                statusText = "Thanh toán thất bại";
-                                                                break;
-                                                            case "canceled":
-                                                                badgeClass = "dark";
-                                                                statusText = "Đã hủy";
-                                                                break;
-                                                        }
-                                                    }
-                                                    <span class="badge bg-@badgeClass">@statusText</span>
-                                                </td>
-
-                                                <td>@o.PercentPaid%</td>
-                                                <td>@String.Format("{0:N0}đ", o.TotalPrice)</td>
-                                                <td>@String.Format("{0:N0}đ", o.PricePaid)</td>
-                                                <td>
-                                                    <img width="40px" src="@o.QrCodeUrl" />
-                                                </td>
-                                                <td>
-                                                    <a href="@o.CheckoutUrl" target="_blank" class="btn btn-sm btn-outline-primary">Mở link</a>
-                                                </td>
-                                                <td>@(o.TransactionTime?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
-                                                <td>@o.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                                            </tr>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="12" class="text-center text-muted">Không có đơn hàng gần đây</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+							<table class="table m-0 table-hover text-nowrap">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Khách hàng</th>
+										<th>Tài liệu</th>
+										<th>Chi phí gốc</th>
+										<th>Tạo đơn lúc</th>
+										<th class="text-center">Thao tác</th>
+									</tr>
+								</thead>
+								<tbody>
+									@if (ViewBag.RecentOrders != null && ((System.Collections.IEnumerable)ViewBag.RecentOrders).Cast<object>().Any())
+									{
+										foreach (var o in ViewBag.RecentOrders)
+										{
+											<tr>
+												<td>@o.Id</td>
+												<td>
+													@o.UserFullName
+													<br />
+													<small class="text-muted">@o.Email</small>
+													<br />
+													<small class="text-muted">@o.Phone</small>
+												</td>
+												<td>@o.DocumentTitle</td>
+												<td>@String.Format("{0:N0}đ", o.TotalPrice)</td>
+												<td>@o.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+												<td class="text-center">
+													<a href="/admin/order/@o.Id/transactions" class="btn btn-outline-primary btn-sm">
+														 Xem chi tiết
+													</a>
+												</td>
+											</tr>
+										}
+									}
+									else
+									{
+										<tr>
+											<td colspan="10" class="text-center text-muted">Không có đơn hàng gần đây.</td>
+										</tr>
+									}
+								</tbody>
+							</table>
                         </div>
                     </div>
 

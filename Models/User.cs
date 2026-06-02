@@ -1,43 +1,44 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace thuvienso.Models;
-
-public class User
+namespace thuvienso.Models
 {
-    [Key]
-    public int Id { get; set; }
+    public enum UserRole { admin, user }
 
-    [Required]
-    [MaxLength(255)]
-    public string Name { get; set; }
+    /// <summary>
+    /// Thực thể quản lý tài khoản người dùng và phân quyền hệ thống
+    /// </summary>
+    public class User
+    {
+        [Key]
+        public int Id { get; set; }
 
-    [Required]
-    [MaxLength(255)]
-    [EmailAddress]
-    public string Email { get; set; }
+        [Required, MaxLength(255)]
+        public string Name { get; set; } = string.Empty;
 
-    [MaxLength(12)]
-    public string? Phone { get; set; }
+        [Required, MaxLength(255), EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
-    [Required]
-    [MaxLength(255)]
-    public string Password { get; set; }
+        [MaxLength(12)]
+        public string? Phone { get; set; }
 
-    [MaxLength(6)]
-    public string? ResetCode { get; set; }
+        [Required, MaxLength(255)]
+        public string Password { get; set; } = string.Empty;
 
-    public DateTime? ResetCodeExpiry { get; set; }
+        [MaxLength(6)]
+        public string? ResetCode { get; set; }
 
-    [Required]
-    [Column(TypeName = "ENUM('admin','user')")]
-    public string Role { get; set; } = "user";
+        public DateTime? ResetCodeExpiry { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        [Required]
+        public UserRole Role { get; set; } = UserRole.user;
 
-    // ======= NAVIGATION PROPERTIES =======
+        // Quản lý thời gian tự động qua AppDbContext
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
-    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
-    public ICollection<Download> Downloads { get; set; } = new List<Download>();
+        public virtual ICollection<Order> Payments { get; set; } = new List<Order>();
+        public virtual ICollection<Download> Downloads { get; set; } = new List<Download>();
+    }
 }

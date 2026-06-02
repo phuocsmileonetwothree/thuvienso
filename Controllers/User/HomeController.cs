@@ -1,105 +1,47 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using thuvienso.Data;
+using Microsoft.AspNetCore.Mvc;
 using thuvienso.Helpers;
+using thuvienso.Repositories;
 
 namespace thuvienso.Controllers.User
 {
     [Route("")]
     public class HomeController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly DocumentRepository _documentRepo;
 
-        public HomeController(AppDbContext context)
+        // Tiêm Repo trực tiếp, không qua Service vì luồng này chỉ đọc dữ liệu
+        public HomeController(DocumentRepository documentRepo)
         {
-            _context = context;
+            _documentRepo = documentRepo;
         }
 
+        /// <summary>
+        /// Thu thập và phân loại các danh sách tài liệu nổi bật, cấu trúc danh mục để hiển thị trên trang chủ.
+        /// </summary>
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            ViewBag.Newest = await _context.Documents
-                .Include(d => d.DocumentAuthors)
-                .ThenInclude(da => da.Author)
-                .OrderByDescending(d => d.CreatedAt)
-                .Take(12)
-                .ToListAsync();
+            // Các hàm cũ đã có sẵn trong Repo (truyền 0 để không bỏ qua tài liệu nào)
+            ViewBag.Newest = await _documentRepo.GetNewestDocsAsync(currentDocId: 0, limit: 12);
+            ViewBag.MostViewed = await _documentRepo.GetPopularDocsAsync(currentDocId: 0, limit: 12);
 
-            ViewBag.MostViewed = await _context.Documents
-                .Include(d => d.DocumentAuthors)
-                .ThenInclude(da => da.Author)
-                .OrderByDescending(d => d.View)
-                .Take(12)
-                .ToListAsync();
-
-            ViewBag.Free = await _context.Documents
-                .Where(d => d.IsFree == true)
-                .Include(d => d.DocumentAuthors)
-                .ThenInclude(da => da.Author)
-                .OrderByDescending(d => d.CreatedAt)
-                .Take(12)
-                .ToListAsync();
-
-            ViewBag.Paid = await _context.Documents
-                .Where(d => d.IsFree == false)
-                .Include(d => d.DocumentAuthors)
-                .ThenInclude(da => da.Author)
-                .OrderByDescending(d => d.CreatedAt)
-                .Take(12)
-                .ToListAsync();
-
-            // ✅ THÊM MỚI: Random 12 tài liệu
-            ViewBag.Random = await _context.Documents
-                .OrderBy(d => Guid.NewGuid()) // cách phổ biến để random trong EF
-                .Take(12)
-                .ToListAsync();
+            // Các hàm mới tối ưu hóa phân loại
+            ViewBag.Free = await _documentRepo.GetNewestFreeDocsAsync(limit: 12);
+            ViewBag.Paid = await _documentRepo.GetNewestPaidDocsAsync(limit: 12);
+            ViewBag.Random = await _documentRepo.GetRandomDocsAsync(limit: 12);
 
             // Danh mục phẳng
-            var allCategories = await _context.Categories.ToListAsync();
-            var flatList = CategoryHelper.BuildTree(allCategories);
-            ViewBag.FlatCategories = flatList;
+            var allCategories = await _documentRepo.GetAllCategoriesAsync();
+            ViewBag.FlatCategories = CategoryHelper.BuildTree(allCategories.ToList());
 
+            // Tối ưu hóa luồng bốc Top 3 Categories kèm 6 Docs mới nhất
+            var topCategories = await _documentRepo.GetTopCategoriesWithDocsAsync(categoryLimit: 3, docLimit: 6);
 
-            // Lấy 3 danh mục có nhiều tài liệu nhất, mỗi cái kèm theo 6 document mới nhất
-            var topCategories = await _context.Categories
-                .Where(c => c.Documents.Any())
-                .OrderByDescending(c => c.Documents.Count)
-                .Take(3)
-                .ToListAsync();
-
-            // Lấy luôn tài liệu theo từng danh mục
-            if (topCategories.Count > 0)
-            {
-                topCategories[0].Documents = topCategories[0].Documents
-                    .OrderByDescending(d => d.CreatedAt)
-                    .Take(6)
-                    .ToList();
-                ViewBag.CategoryTop1View = topCategories[0];
-            }
-
-            if (topCategories.Count > 1)
-            {
-                topCategories[1].Documents = topCategories[1].Documents
-                    .OrderByDescending(d => d.CreatedAt)
-                    .Take(6)
-                    .ToList();
-                ViewBag.CategoryTop2View = topCategories[1];
-            }
-
-            if (topCategories.Count > 2)
-            {
-                topCategories[2].Documents = topCategories[2].Documents
-                    .OrderByDescending(d => d.CreatedAt)
-                    .Take(6)
-                    .ToList();
-                ViewBag.CategoryTop3View = topCategories[2];
-            }
-
+            ViewBag.CategoryTop1View = topCategories.ElementAtOrDefault(0);
+            ViewBag.CategoryTop2View = topCategories.ElementAtOrDefault(1);
+            ViewBag.CategoryTop3View = topCategories.ElementAtOrDefault(2);
 
             return View("~/Views/User/Home.cshtml");
         }
-
-
-
     }
 }

@@ -1,18 +1,17 @@
-﻿@model thuvienso.Models.Document
+@model thuvienso.Models.Document
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Views/Shared/User/_Layout.cshtml";
 
     var newest = (List<thuvienso.Models.Document>)ViewBag.NewestDocs;
     var popular = (List<thuvienso.Models.Document>)ViewBag.PopularDocs;
-    string fallbackThumb = "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/2b/d8/9e/2bd89e9f-aaf3-725a-bd45-ae6ecdee2f54/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg";
+	DateTime createdAtVn = Model.CreatedAt;
 }
 
 <section class="bg-white pb-60">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <!-- Breadcrumb -->
                 <ul class="breadcrumbs bg-light mb-4">
                     <li class="breadcrumbs__item">
                         <a class="breadcrumbs__url" href="index.html">
@@ -29,10 +28,8 @@
         <div class="row">
             <div class="col-md-8">
 
-                <!-- Article detail -->
                 <div class="wrap__article-detail">
                     <div class="wrap__article-detail-image">
-                        <!-- Social media animation -->
                         <div class="social__media__animation">
                             <ul class="menu topLeft bg__card-shadow">
                                 <li class="share bottom">
@@ -101,28 +98,24 @@
                     <hr>
                     <div class="wrap__article-detail-info">
                         <ul class="list-inline">
-                            <!-- Ngày tạo -->
                             <li class="list-inline-item">
                                 <span class="text-dark text-capitalize ml-1">
-                                    @Model.CreatedAt.ToString("dd MMMM yyyy"),  @* ví dụ: 13 June 2025 *@
+									@Model.CreatedAt.ToString("dd MMMM yyyy"),
                                 </span>
                             </li>
 
-                            <!-- Danh mục -->
                             <li class="list-inline-item">
                                 <a href="/category?categoryId=@Model.Category?.Id">
                                     @Model.Category?.Name,
                                 </a>
                             </li>
 
-                            <!-- Lượt xem -->
                             <li class="list-inline-item">
                                 <span class="mr-1 ml-1">
                                     <i class="fa fa-eye"></i> @(Model.View ?? 0)
                                 </span>
                             </li>
 
-                            <!-- Lượt tải -->
                             <li class="list-inline-item">
                                 <span class="mr-1 ml-1">
                                     <i class="fa fa-download"></i> @(Model.Download ?? 0)
@@ -144,7 +137,7 @@
                                 {
                                     <li class="list-inline-item tag__ cursor-pointer">
                                         <span class="mr-1 ml-1 btn-checkout">
-                                            Thanh toán ngay hoặc từng phần
+                                             Thanh toán ngay hoặc từng phần
                                         </span>
                                     </li>
                                 }
@@ -190,12 +183,10 @@
 
                 </div>
 
-                <!-- Author Tags (hiển thị có phí / miễn phí) -->
                 <div class="blog-tags d-block">
                     <ul class="list-inline">
                         <li class="list-inline-item">
-                            <i class="fa fa-tag"></i> <!-- icon giá -->
-                        </li>
+                            <i class="fa fa-tag"></i> </li>
                         <li class="list-inline-item">
                             <a class="tag__ text-white">
                                 @(Model.IsFree ? "Miễn phí" : "Có phí")
@@ -205,7 +196,6 @@
                 </div>
 
 
-                <!-- Author Tags -->
                 <div class="blog-tags d-block">
                     @{
                         var authors = Model.DocumentAuthors
@@ -218,8 +208,7 @@
                     {
                         <ul class="list-inline">
                             <li class="list-inline-item">
-                                <i class="fa fa-user"></i> <!-- icon tác giả -->
-                            </li>
+                                <i class="fa fa-user"></i> </li>
                             @foreach (var author in authors)
                             {
                                 <li class="list-inline-item">
@@ -233,7 +222,6 @@
                 </div>
 
 
-                <!-- Category Tags -->
                 <div class="blog-tags">
                     @{
                         var allCategories = ViewBag.AllCategories as List<thuvienso.Models.Category>;
@@ -260,21 +248,10 @@
 
                 </div>
 
-
-                <!-- Profile author -->
-                <!-- Comment  -->
-                <!-- Comment -->
-
-
-
-
-
             </div>
             <div class="col-md-4">
                 <aside class="wrapper__list__article">
                     <div class="wrapper__list__article-small">
-                        <!-- Post Article -->
-
                         <div class="wrapper__list__article-small">
 
                             @{
@@ -285,8 +262,9 @@
                             {
                                 foreach (var doc in popularDocs)
                                 {
+                                    // Chuyển đổi thời gian danh sách bài viết phổ biến từ UTC sang giờ Việt Nam
+									DateTime docCreatedAtVn = doc.CreatedAt;
                                     <div class="item mb-3">
-                                        <!-- Post Article -->
                                         <div class="card__post card__post-list">
                                             <div class="image-sm">
                                                 <a href="/document/@doc.Id">
@@ -305,7 +283,7 @@
                                                             </li>
                                                             <li class="list-inline-item">
                                                                 <span class="text-dark text-capitalize">
-                                                                    @doc.CreatedAt.ToString("dd/MM/yyyy")
+                                                                    @docCreatedAtVn.ToString("dd/MM/yyyy")
                                                                 </span>
                                                             </li>
                                                         </ul>
@@ -320,7 +298,6 @@
                                                         <div class="tag__">
                                                             @(doc.IsFree ? "Miễn phí" : "Có phí")
                                                         </div>
-                                                        @* <p class="d-none d-lg-block d-xl-block">@doc.Description</p> *@
                                                     </div>
                                                 </div>
                                             </div>
@@ -330,20 +307,9 @@
                             }
                             </div>
 
-
-                            <!-- Post Article -->
-
-
-
                         </div>
                     </div>
                 </aside>
-
-                <!-- social media -->
-                <!-- End social media -->
-                <!-- Newsletter news -->
-                <!-- End Newsletter news -->
-
 
             </div>
             <div class="clearfix"></div>
@@ -410,142 +376,248 @@
 			});
 		});
 	</script>
-    <script>
-        // Phần trăm đã thanh toán nếu có
-        window.percentAlreadyPaid = @(ViewBag.PercentPaid ?? 0);
+	<script>
+		window.percentAlreadyPaid = @(ViewBag.PercentPaid ?? 0);
 
-        // Load modal giá tiền
-        document.addEventListener("DOMContentLoaded", function () {
-          const basePrice = parseFloat('@Model.Price') || 0;
-          const documentId = '@Model.Id';
+		document.addEventListener("DOMContentLoaded", function () {
+			const basePrice = parseFloat('@Model.Price') || 0;
+			const documentId = '@Model.Id';
+			let orderCode = '';
 
-          const displayPrice = document.getElementById('calculated-price');
-          const qrImage = document.getElementById('qrPaymentImage');
-          const btnCreate = document.getElementById('btn-create-order');
-          const countdownBox = document.getElementById('countdown-box');
-          const countdownText = document.getElementById('countdown');
-          const btnCancel = document.getElementById('btn-cancel-order');
+			const displayPrice = document.getElementById('calculated-price');
+			const qrImage = document.getElementById('qrPaymentImage');
+			const btnCreate = document.getElementById('btn-create-order');
+			const countdownBox = document.getElementById('countdown-box');
+			const countdownText = document.getElementById('countdown');
 
-          let selectedPercent = 100;
-          let countdownInterval;
-          let countdown = 15;
+			const btnCancelProcess = document.getElementById('btn-cancel-payment-process');
+			const cancelWrapper = document.getElementById('cancel-payment-wrapper');
+			const btnCancelOrderBeforeCreated = document.getElementById('btn-cancel-order');
 
-          // Hàm gọi API tạo đơn thanh toán
-          async function createPayment(percent) {
-            try {
-              const response = await fetch("/payment/create", {
-                method: "POST",
-                body: new URLSearchParams({
-                  documentId: documentId,
-                  percent: percent
-                })
-              });
+			let selectedPercent = 100;
+			let antiSpamInterval;      // Đếm ngược 3 giây chống spam click lúc nhấn Tạo đơn
+			let payosCountdownInterval; // Đồng hồ đếm ngược 15 phút thực tế của PayOS
+			let antiSpamSeconds = 3;
 
-              const result = await response.json();
-              if (result.success) {
-                qrImage.src = result.qrCodeUrl;
-                qrImage.style.display = "block";
-              } else {
-                alert("Không tạo được đơn thanh toán.");
-              }
-            } catch (err) {
-              console.error("❌ Exception:", err);
-              alert("Đã xảy ra lỗi khi tạo đơn.");
-            }
-          }
+			// Hàm xử lý đếm ngược 15 phút của cổng PayOS
+			function startPayOSCountdown(durationInSeconds) {
+				if (payosCountdownInterval) clearInterval(payosCountdownInterval);
 
-          // Gán sự kiện cho tất cả nút thanh toán
-          document.querySelectorAll(".btn-checkout").forEach(payBtn => {
-            payBtn.addEventListener("click", function () {
-                selectedPercent = 100;
-                const alreadyPaid = window.percentAlreadyPaid || 0;
-                const remainingPercent = 100 - alreadyPaid;
-                const amount = Math.round(basePrice * remainingPercent / 100);
-                displayPrice.textContent = amount.toLocaleString('vi-VN');
-                  qrImage.src = "";
-                  $('#payModal').modal('show');
+				let timer = durationInSeconds;
 
-              // Reset UI
-              btnCreate.disabled = false;
-              countdownBox.style.display = "none";
-              clearInterval(countdownInterval);
-            });
-          });
+				payosCountdownInterval = setInterval(function () {
+					let minutes = parseInt(timer / 60, 10);
+					let seconds = parseInt(timer % 60, 10);
 
-            // Gán sự kiện chọn phần trăm
-            document.querySelectorAll('#percent-buttons label').forEach(label => {
-              const radio = label.querySelector('input[type="radio"]');
-              const value = parseInt(radio.value);
+					minutes = minutes < 10 ? "0" + minutes : minutes;
+					seconds = seconds < 10 ? "0" + seconds : seconds;
 
-                if (value <= window.percentAlreadyPaid) {
-                  radio.disabled = true;
-                  label.classList.add('disabled');
-                  label.style.opacity = 0.5;
-                  // label.style.pointerEvents = 'none';
+					// Cập nhật text trực tiếp vào nút hủy
+					btnCancelProcess.innerText = `Hủy thanh toán ${minutes}:${seconds}`;
 
-                  label.addEventListener("click", function () {
-                    const paidAmount = Math.round(basePrice * window.percentAlreadyPaid / 100);
-                    alert(`Bạn đã thanh toán ${window.percentAlreadyPaid}% tương đương ${paidAmount.toLocaleString('vi-VN')}₫ trước đó.`);
-                  });
+					if (--timer < 0) {
+						clearInterval(payosCountdownInterval);
+						btnCancelProcess.innerText = "Hủy thanh toán 00:00";
+						btnCancelProcess.disabled = true;
 
-                  return;
-                }
+						alert("Đơn hàng của bạn đã quá thời gian 15 phút quy định. Hệ thống sẽ đóng giao dịch và đặt lại trạng thái.");
+						// Đóng modal và reset UI sạch sẽ
+						$('#payModal').modal('hide');
+						resetPaymentModalUI();
+					}
+				}, 1000);
+			}
 
-                  // Nếu chưa thanh toán → cho click
-                  label.addEventListener("click", function () {
-                    selectedPercent = value;
-                    const addedPercent = selectedPercent - window.percentAlreadyPaid;
-                    const amount = Math.round(basePrice * addedPercent / 100);
-                    displayPrice.textContent = amount.toLocaleString('vi-VN');
+			// Hàm dọn dẹp và đặt lại trạng thái Modal UI về ban đầu
+			function resetPaymentModalUI() {
+				if (antiSpamInterval) clearInterval(antiSpamInterval);
+				if (payosCountdownInterval) clearInterval(payosCountdownInterval);
 
-                    // Cập nhật UI
-                    document.querySelectorAll('#percent-buttons .btn').forEach(btn => {
-                      btn.classList.remove('active');
-                    });
-                    label.classList.add('active');
+				qrImage.src = "";
+				qrImage.style.display = "none";
+				cancelWrapper.style.display = "none";
+				countdownBox.style.display = "none";
 
-                    qrImage.src = "";
-                    btnCreate.disabled = false;
-                    countdownBox.style.display = "none";
-                    clearInterval(countdownInterval);
-                  });
-            });
+				btnCreate.disabled = false;
+				btnCancelProcess.disabled = false;
+				btnCancelProcess.innerText = "Hủy thanh toán 15:00";
 
+				// 1. Reset giao diện (bỏ active các nút khác, add active cho nút 100%)
+				document.querySelectorAll('#percent-buttons .btn').forEach(btn => btn.classList.remove('active'));
+				document.querySelector('#percent-buttons input[value="100"]').parentNode.classList.add('active');
 
-          // Tạo đơn thanh toán sau đếm ngược
-          if (btnCreate) {
-            btnCreate.addEventListener("click", function () {
-              btnCreate.disabled = true;
-              countdown = 1;
-              countdownText.textContent = countdown;
-              countdownBox.style.display = "block";
+				// 2. Reset giá trị logic (tick chọn lại radio 100% ngầm)
+				document.querySelector('#percent-buttons input[value="100"]').checked = true;
+			}
 
-              countdownInterval = setInterval(() => {
-                countdown--;
-                countdownText.textContent = countdown;
-                if (countdown <= 0) {
-                  clearInterval(countdownInterval);
-                  countdownBox.style.display = "none";
-                  createPayment(selectedPercent);
-                }
-              }, 1000);
-            });
-          }
+			// Hàm gọi API tạo đơn thanh toán
+			async function createPayment(percent) {
+				try {
+					const response = await fetch("/payment/create", {
+						method: "POST",
+						body: new URLSearchParams({
+							documentId: documentId,
+							percent: percent
+						})
+					});
 
-          // Huỷ tạo đơn
-          if (btnCancel) {
-            btnCancel.addEventListener("click", function () {
-              clearInterval(countdownInterval);
-              countdownBox.style.display = "none";
-              btnCreate.disabled = false;
-            });
-          }
-        });
+					const result = await response.json();
+					if (result.success) {
+						orderCode = result.data.orderCode;
+						qrImage.src = result.data.qrCode;
+						qrImage.style.display = "block";
+						cancelWrapper.style.display = "block";
 
-    </script>
+						// Kích hoạt đồng hồ đếm ngược 15 phút của PayOS (15 phút = 900 giây)
+						startPayOSCountdown(900);
+					} else {
+						alert("Không tạo được đơn thanh toán.");
+						btnCreate.disabled = false;
+					}
+				} catch (err) {
+					console.error("❌ Exception:", err);
+					alert("Đã xảy ra lỗi khi tạo đơn.");
+					btnCreate.disabled = false;
+				}
+			}
 
+			// Sự kiện click nút kích hoạt thanh toán .btn-checkout
+			document.querySelectorAll(".btn-checkout").forEach(payBtn => {
+				payBtn.addEventListener("click", function () {
+					selectedPercent = 100;
+					const alreadyPaid = window.percentAlreadyPaid || 0;
+					const remainingPercent = 100 - alreadyPaid;
+					const amount = Math.round(basePrice * remainingPercent / 100);
+
+					displayPrice.textContent = amount.toLocaleString('vi-VN');
+					resetPaymentModalUI();
+					$('#payModal').modal('show');
+				});
+			});
+
+			// Gán sự kiện chọn radio phần trăm lũy tiến
+			document.querySelectorAll('#percent-buttons label').forEach(label => {
+				const radio = label.querySelector('input[type="radio"]');
+				if (!radio) return;
+
+				if (parseInt(radio.value) <= window.percentAlreadyPaid) {
+					radio.disabled = true;
+					label.classList.add('disabled');
+					label.style.opacity = 0.5;
+					return;
+				}
+
+				label.addEventListener("click", function () {
+					const price = this.getAttribute('data-price');
+					displayPrice.textContent = parseInt(price).toLocaleString('vi-VN');
+					selectedPercent = parseInt(radio.value);
+
+					document.querySelectorAll('#percent-buttons .btn').forEach(btn => btn.classList.remove('active'));
+					label.classList.add('active');
+				});
+			});
+
+			// Click nút Tạo đơn hàng (Đếm ngược 3 giây chống click spam rồi mới gọi API)
+			if (btnCreate) {
+				btnCreate.addEventListener("click", function () {
+					btnCreate.disabled = true;
+					antiSpamSeconds = 3;
+					countdownText.textContent = antiSpamSeconds;
+					countdownBox.style.display = "block";
+
+					antiSpamInterval = setInterval(() => {
+						antiSpamSeconds--;
+						countdownText.textContent = antiSpamSeconds;
+						if (antiSpamSeconds <= 0) {
+							clearInterval(antiSpamInterval);
+							countdownBox.style.display = "none";
+							createPayment(selectedPercent);
+						}
+					}, 1000);
+				});
+			}
+
+			// Hủy tạo đơn hàng khi đang trong thời gian đếm ngược 3 giây chờ
+			if (btnCancelOrderBeforeCreated) {
+				btnCancelOrderBeforeCreated.addEventListener("click", function () {
+					if (antiSpamInterval) clearInterval(antiSpamInterval);
+					countdownBox.style.display = "none";
+					btnCreate.disabled = false;
+				});
+			}
+
+			// Thực hiện hủy đơn chủ động từ phía khách hàng thông qua nút bấm
+			if (btnCancelProcess) {
+				btnCancelProcess.addEventListener("click", async function () {
+					const isConfirmed = confirm("Bạn có chắc chắn muốn hủy đơn thanh toán này không?");
+					if (isConfirmed) {
+						try {
+							btnCancelProcess.disabled = true;
+							btnCancelProcess.innerText = "Đang hủy...";
+
+							const response = await fetch('/payment/cancel', {
+								method: 'POST',
+								body: new URLSearchParams({ orderCode: orderCode })
+							});
+
+							const result = await response.json();
+							if (result.success) {
+								$('#payModal').modal('hide');
+								resetPaymentModalUI();
+								console.log("Đã hủy thanh toán thành công trên server");
+							} else {
+								alert("Hủy thất bại: " + (result.message || "Lỗi không xác định"));
+								btnCancelProcess.disabled = false;
+							}
+						} catch (error) {
+							console.error("Lỗi kết nối:", error);
+							alert("Có lỗi xảy ra khi kết nối tới server.");
+							btnCancelProcess.disabled = false;
+						}
+					}
+				});
+			}
+
+			// Tự động giải phóng các Interval khi modal bị đóng thủ công bằng dấu X
+			$('#payModal').on('hidden.bs.modal', function () {
+				resetPaymentModalUI();
+			});
+		});
+	</script>
+	<script>
+		// 1. Khởi tạo kết nối tới Hub
+		var userId = '@Context.Session.GetInt32("UserId")'; // Lấy ID từ session ở phía Server
+		var connection = new signalR.HubConnectionBuilder()
+			.withUrl("/paymentHub?userId=" + userId) // Gửi userId qua URL
+			.build();
+
+		// 2. Lắng nghe tín hiệu từ Server gửi về cho riêng mình
+		connection.on("ReceivePaymentUpdate", function (data) {
+			// Lấy mã OrderCode của lượt quét hiện tại đang hiển thị trên giao diện của khách
+			const currentDocumentId = '@Model.Id';
+			var status = data.status;
+			var documentId = data.documentId;
+			if(documentId == currentDocumentId){
+				if (data.status == "paid") {
+					alert("Thanh toán thành công! Hệ thống đang tải lại tài liệu...");
+					window.location.reload();
+				} else if (data.status == "canceled") {
+					// Nếu đơn bị huỷ (do quá hạn chẳng hạn)
+					alert("Đơn hàng đã được huỷ...");
+					$('#payModal').modal('hide');
+				}else {
+					alert("Đã có lỗi xảy ra. Vui lòng kiểm tra lại...");
+				}
+			}
+
+		});
+
+		// 3. Bắt đầu kết nối
+		connection.start().catch(function (err) {
+			return console.error(err.toString());
+		});
+	</script>
 }
-<!-- Modal hiển thị QR thanh toán -->
 <div class="modal fade" id="payModal" tabindex="-1" role="dialog"
      aria-labelledby="payModalLabel" aria-hidden="true"
      data-backdrop="static" data-keyboard="false">
@@ -562,40 +634,30 @@
 
       <div class="modal-body d-flex flex-column align-items-center justify-content-center px-4 pt-3 pb-4">
 
-        <!-- Chọn phần trăm -->
         <div class="mb-3 w-100 text-center">
             <p class="mb-2 font-weight-semibold" style="font-size: 1rem;">Chọn mức thanh toán trước:</p>
-            <div id="percent-buttons" class="btn-group btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-outline-primary px-3 py-1">
-                <input type="radio" name="paymentPercent" value="25" autocomplete="off"> 25%
-              </label>
-              <label class="btn btn-outline-primary px-3 py-1">
-                <input type="radio" name="paymentPercent" value="50" autocomplete="off"> 50%
-              </label>
-              <label class="btn btn-outline-primary px-3 py-1 active">
-                <input type="radio" name="paymentPercent" value="100" autocomplete="off" checked> 100%
-              </label>
-            </div>
+			<div id="percent-buttons" class="btn-group btn-group-toggle" data-toggle="buttons">
+				<!-- Mốc 25% -->
+				<label class="btn btn-outline-primary px-3 py-1" data-price="@ViewBag.Price25">
+					<input type="radio" name="paymentPercent" value="25" autocomplete="off"> 25%
+				</label>
+				<!-- Mốc 50% -->
+				<label class="btn btn-outline-primary px-3 py-1" data-price="@ViewBag.Price50">
+					<input type="radio" name="paymentPercent" value="50" autocomplete="off"> 50%
+				</label>
+				<!-- Mốc 100% -->
+				<label class="btn btn-outline-primary px-3 py-1 active" data-price="@ViewBag.Price100">
+					<input type="radio" name="paymentPercent" value="100" autocomplete="off" checked> 100%
+				</label>
+			</div>
 
 
-            <p class="mt-3 mb-1 font-weight-medium" style="font-size: 1rem;">
-            @{
-                var price = Model.Price ?? 0;
-                var percentPaid = Convert.ToDecimal(ViewBag.PercentPaid ?? 0); // 👈 ép về decimal
-                var priceRemaining = Math.Round(price * (100 - percentPaid) / 100m);
-            }
-            <!-- DEBUG -->
-            <!-- Model.Price: @(Model.Price) -->
-            <!-- ViewBag.PercentPaid: @ViewBag.PercentPaid -->
-            <!-- (decimal): @Convert.ToDecimal(ViewBag.PercentPaid ?? 0) -->
-            <!-- (priceRemaining): @priceRemaining -->
-            <strong>Thành tiền:</strong>
-            <span id="calculated-price" class="text-primary" style="font-weight: 600;">
-              @priceRemaining.ToString("N0")
-            </span> đ
+			<p class="mt-3 mb-1 font-weight-medium" style="font-size: 1rem;">
+				<strong>Thành tiền:</strong>
+				<span id="calculated-price" class="text-primary" style="font-weight: 600;">@ViewBag.Price100.ToString("N0")</span>₫
+			</p>
 
 
-            <!-- Nút tạo đơn hàng và countdown -->
             <div id="create-order-wrapper" class="text-center mt-3">
               <button id="btn-create-order" class="btn btn-primary">Tạo đơn thanh toán</button>
 
@@ -607,11 +669,16 @@
           </p>
         </div>
 
-        <!-- QR -->
         <img id="qrPaymentImage"
              src=""
              alt="QR thanh toán"
              class="img-fluid mb-3" style="max-width: 260px; display: none;" />
+
+		<div id="cancel-payment-wrapper" class="text-center mb-3" style="display: none;">
+			<button id="btn-cancel-payment-process" class="btn btn-sm btn-outline-danger">
+				Hủy thanh toán 15:00
+			</button>
+		</div>
 
         <p class="text-muted text-center mb-0" style="font-size: 0.9rem;">
           Vui lòng quét mã để thanh toán và chờ xác nhận tự động.
@@ -620,11 +687,3 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-

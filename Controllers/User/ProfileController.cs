@@ -1,19 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using thuvienso.Data;
+using Microsoft.AspNetCore.Mvc;
+using thuvienso.Repositories;
 
 namespace thuvienso.Controllers.User
 {
     [Route("user/profile")]
     public class ProfileController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly OrderRepository _orderRepo;
 
-        public ProfileController(AppDbContext context)
+        public ProfileController(OrderRepository orderRepo)
         {
-            _context = context;
+            _orderRepo = orderRepo;
         }
 
+        /// <summary>
+        /// Thu thập danh sách tài liệu đã sở hữu và các giao dịch đang chờ xử lý để hiển thị giao diện hồ sơ cá nhân.
+        /// </summary>
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
@@ -21,24 +23,16 @@ namespace thuvienso.Controllers.User
             if (userId == null)
                 return Redirect("/user/auth/login");
 
-            // 👉 Danh sách đã thanh toán
-            var paidDocs = await _context.Payments
-                .Where(p => p.UserId == userId && p.PaymentStatus == "paid")
-                .Include(p => p.Document)
-                .GroupBy(p => p.DocumentId)
-                .Select(g => g.OrderByDescending(p => p.PercentPaid).First())
-                .ToListAsync();
+            // TAB 1: Gọi hàm sạch từ Repo lấy các tài liệu đã paid sở hữu cao nhất
+            var paidDetails = await _orderRepo.GetLatestPaidDetailsByUserIdAsync(userId.Value);
 
-            // 👉 Danh sách đang chờ thanh toán
-            var pendingDocs = await _context.Payments
-                .Where(p => p.UserId == userId && p.PaymentStatus == "pending")
-                .Include(p => p.Document)
-                .GroupBy(p => p.DocumentId)
-                .Select(g => g.OrderByDescending(p => p.CreatedAt).First())
-                .ToListAsync();
+            // TAB 2: Lấy danh sách các giao dịch con đang chờ thanh toán (Pending)
+            var pendingDetails = await _orderRepo.GetPendingDetailsByUserIdAsync(userId.Value);
 
-            ViewBag.PendingDocs = pendingDocs;
-            return View("~/Views/User/Profile.cshtml", paidDocs);
+            ViewBag.PendingDocs = pendingDetails;
+
+            // Truyền list OrderDetail sang cho View nhận
+            return View("~/Views/User/Profile.cshtml", paidDetails);
         }
     }
 }

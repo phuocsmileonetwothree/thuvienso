@@ -1,64 +1,85 @@
-﻿@{
-    ViewData["Title"] = "Trang Tạo Mới Người Dùng";
-    Layout = "~/Views/Shared/Admin/_Layout.cshtml";
+@model thuvienso.Models.User
+@{
+	ViewData["Title"] = "Trang Tạo Mới Người Dùng";
+	Layout = "~/Views/Shared/Admin/_Layout.cshtml";
 }
 <div class="app-content-header">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-6"><h3 class="mb-0">Tạo Mới Người Dùng</h3></div>
-        </div>
-    </div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-6"><h3 class="mb-0">Tạo Mới Người Dùng</h3></div>
+		</div>
+	</div>
 </div>
 
 <div class="app-content">
-    <div class="container-fluid">
-        <form method="post" class="row">
-            <div class="col-12">
-                <div class="card card-primary">
-                    <div class="card-body">
-                        <div class="form-group mt-3">
-                            <label for="name">Họ tên</label>
-                            <input type="text" id="name" name="name" class="form-control"
-                                   required maxlength="255" pattern=".*[A-Za-zÀ-ỹ].*"
-                                   placeholder="Tên không được để trống hoặc chỉ chứa số."
-                                   value="@ViewData["Name"]" />
-                        </div>
+	<div class="container-fluid">
+		<form method="post" class="row">
+			<div class="col-12">
+				<div class="card card-primary">
+					<div class="card-body">
+						<div class="form-group mt-3">
+							<label for="name">Họ tên</label>
+							<input type="text" id="name" name="name" class="form-control"
+								   required maxlength="255" pattern=".*[A-Za-zÀ-ỹ].*"
+								   placeholder="Tên không được để trống hoặc chỉ chứa số."
+								   value="@Model.Name" />
+							@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Name"]?.Errors.Count > 0)
+							{
+								<div class="text-danger">@ViewData.ModelState["Name"].Errors[0].ErrorMessage</div>
+							}
+						</div>
 
-                        <div class="form-group mt-3">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" class="form-control"
-                                   required maxlength="255" autocomplete="off"
-                                   value="@ViewData["Email"]" />
-                        </div>
+						<div class="form-group mt-3">
+							<label for="email">Email</label>
+							<input type="email" id="email" name="email" class="form-control"
+								   required maxlength="255" autocomplete="off"
+								   value="@Model.Email" />
+							@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Email"]?.Errors.Count > 0)
+							{
+								<div class="text-danger">@ViewData.ModelState["Email"].Errors[0].ErrorMessage</div>
+							}
+						</div>
 
-                        <div class="form-group mt-3">
-                            <label for="password">Mật khẩu</label>
-                            <input type="password" id="password" name="password" class="form-control"
-                                   required maxlength="255" autocomplete="off"
-                                   placeholder="Nhập mật khẩu cho người dùng mới" />
-                        </div>
+						<div class="form-group mt-3">
+							<label for="password">Mật khẩu</label>
+							<input type="password" id="password" name="password" class="form-control"
+								   required maxlength="255" autocomplete="off"
+								   placeholder="Nhập mật khẩu cho người dùng mới" />
+							@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Password"]?.Errors.Count > 0)
+							{
+								<div class="text-danger">@ViewData.ModelState["Password"].Errors[0].ErrorMessage</div>
+							}
+						</div>
 
-                        <div class="form-group mt-3">
-                            <label for="confirmPassword">Xác nhận mật khẩu</label>
-                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
-                                   required maxlength="255" placeholder="Nhập lại mật khẩu" />
-                        </div>
+						<div class="form-group mt-3">
+							<label for="confirmPassword">Xác nhận mật khẩu</label>
+							<input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+								   required maxlength="255" placeholder="Nhập lại mật khẩu" />
+							@if (!ViewData.ModelState.IsValid && ViewData.ModelState["ConfirmPassword"]?.Errors.Count > 0)
+							{
+								<div class="text-danger">@ViewData.ModelState["ConfirmPassword"].Errors[0].ErrorMessage</div>
+							}
+						</div>
 
-                        <div class="form-group mt-3">
-                            <label for="role">Vai trò</label>
-                            <select name="role" id="role" class="form-control" required>
-                                <option value="user" selected="@((ViewData["Role"]?.ToString() == "user") ? "selected" : null)">User</option>
-                                <option value="admin" selected="@((ViewData["Role"]?.ToString() == "admin") ? "selected" : null)">Admin</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+						<div class="form-group mt-3">
+							<label for="role">Vai trò</label>
+							<select name="role" id="role" class="form-control" required>
+								<option value="@(UserRole.user)" selected="@(Model.Role == UserRole.user ? "selected" : null)">User</option>
+								<option value="@(UserRole.admin)" selected="@(Model.Role == UserRole.admin ? "selected" : null)">Admin</option>
+							</select>
+							@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Role"]?.Errors.Count > 0)
+							{
+								<div class="text-danger">@ViewData.ModelState["Role"].Errors[0].ErrorMessage</div>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <div class="col-12 mt-3 text-end">
-                <a href="/admin/user" class="btn btn-secondary">Huỷ</a>
-                <input type="submit" value="Lưu" class="btn btn-success">
-            </div>
-        </form>
-    </div>
+			<div class="col-12 mt-3 text-end">
+				<a keep-filter href="/admin/user" class="btn btn-secondary">Huỷ</a>
+				<input type="submit" value="Lưu" class="btn btn-success">
+			</div>
+		</form>
+	</div>
 </div>

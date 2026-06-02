@@ -1,4 +1,4 @@
-﻿@model List<thuvienso.Models.Payment>
+@model List<thuvienso.Models.Order>
 @{
     ViewData["Title"] = "Quản Lý Đơn Hàng";
     Layout = "~/Views/Shared/Admin/_Layout.cshtml";
@@ -24,28 +24,10 @@
                     <div class="card-header d-flex flex-wrap">
                         <form method="get" class="card-search mb-2 mt-4" style="flex-basis: 100%">
                             <div class="row g-2 mb-2">
-                                <div class="col-3 flex-grow-1">
+                                <div class="col-3">
                                     <input type="search" name="search" class="form-control"
                                            placeholder="Họ tên,email,sđt,tài liệu,mã đơn..."
                                            value="@ViewBag.Search" />
-                                </div>
-
-                                <div class="col-2">
-                                    <select name="status" class="form-control">
-                                        <option value="">Trạng thái</option>
-                                        <option value="pending" selected="@(ViewBag.Status == "pending")">Đang chờ</option>
-                                        <option value="paid" selected="@(ViewBag.Status == "paid")">Đã thanh toán</option>
-                                        <option value="failed" selected="@(ViewBag.Status == "failed")">Thất bại</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-2">
-                                    <select name="percent" class="form-control">
-                                        <option value="">% thanh toán</option>
-                                        <option value="25" selected="@(ViewBag.Percent?.ToString() == "25")">25%</option>
-                                        <option value="50" selected="@(ViewBag.Percent?.ToString() == "50")">50%</option>
-                                        <option value="100" selected="@(ViewBag.Percent?.ToString() == "100")">100%</option>
-                                    </select>
                                 </div>
 
                                 <div class="col-2 form-floating">
@@ -74,91 +56,52 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Người mua</th>
-                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
                                     <th>Tài liệu</th>
-                                    <th>Trạng thái</th>
-                                    <th>% Đã thanh toán</th>
                                     <th>Chi phí gốc</th>
-                                    <th>Đã thanh toán</th>
-                                    <th>QR</th>
-                                    <th>Link thanh toán</th>
-                                    <th>Thanh toán lúc</th>
                                     <th>Tạo đơn lúc</th>
+                                    <th class="text-center">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @if (Model != null && Model.Any())
-                                {
-                                    foreach (var order in Model)
-                                    {
-                                        <tr>
-                                            <td>@order.Id</td>
-                                            <td>@order.User?.Name<br /><small>@order.User?.Email</small><br /><small>@order.User?.Phone</small></td>
-                                            <td>@order.OrderCode</td>
-                                            <td>
-                                                @if (order.Document != null)
-                                                {
-                                                    <a href="/document/@order.Document.Id" target="_blank">
-                                                        @order.Document.Title
-                                                    </a>
-                                                }
-                                            </td>
-                                            <td>
-                                                @{
-                                                    string badgeClass = "secondary";
-                                                    string statusText = "Không rõ";
-
-                                                    switch (order.PaymentStatus)
-                                                    {
-                                                        case "paid":
-                                                            badgeClass = "success";
-                                                            statusText = "Đã thanh toán";
-                                                            break;
-                                                        case "pending":
-                                                            badgeClass = "warning";
-                                                            statusText = "Đang chờ thanh toán";
-                                                            break;
-                                                        case "failed":
-                                                            badgeClass = "danger";
-                                                            statusText = "Thanh toán thất bại";
-                                                            break;
-                                                        case "canceled":
-                                                            badgeClass = "dark";
-                                                            statusText = "Đã hủy";
-                                                            break;
-                                                    }
-                                                }
-                                                <span class="badge bg-@badgeClass">@statusText</span>
-                                            </td>
-                                            <td>@(order.PercentPaid)%</td>
-                                            <td>@String.Format("{0:N0}đ", order.TotalPrice)</td>
-                                            <td>@String.Format("{0:N0}đ", order.PricePaid)</td>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(order.QrCodeUrl))
-                                                {
-                                                    <img src="@order.QrCodeUrl" style="height: 40px;" />
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(order.CheckoutUrl))
-                                                {
-                                                    <a href="@order.CheckoutUrl" target="_blank" class="btn btn-sm btn-outline-primary">Mở link</a>
-                                                }
-                                            </td>
-                                            <td>@order.TransactionTime?.ToString("dd/MM/yyyy HH:mm")</td>
-                                            <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="12" class="text-center text-muted">Không có đơn hàng nào.</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+							<tbody>
+								@if (ViewBag.Orders != null && ((System.Collections.IEnumerable)ViewBag.Orders).Cast<object>().Any())
+								{
+									foreach (var o in ViewBag.Orders)
+									{
+										<tr>
+											<td>@o.Id</td>
+											<td>
+												@o.UserFullName <br />
+												<small class="text-muted">@o.Email</small> <br />
+												<small class="text-muted">@o.Phone</small>
+											</td>
+											<td>
+												@if (o.DocumentTitle != null)
+												{
+													<a href="/document/@o.DocumentId" target="_blank">@o.DocumentTitle</a>
+												}
+												else
+												{
+													<span class="text-danger">Tài liệu đã bị xóa</span>
+												}
+											</td>
+									
+											<td>@String.Format("{0:N0}đ", o.TotalPrice)</td>
+											<td>@o.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+											<td class="text-center">
+												<a href="/admin/order/@o.Id/transactions" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+											</td>
+										</tr>
+									}
+								}
+								else
+								{
+									<tr>
+										<td colspan="10" class="text-center text-muted">Không có đơn hàng nào.</td>
+									</tr>
+								}
+							</tbody>
+						</table>
                     </div>
 
                 </div>

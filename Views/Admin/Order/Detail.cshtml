@@ -1,0 +1,248 @@
+@model List<thuvienso.Models.OrderDetail>
+
+@using thuvienso.Models @{
+	// Nhận thông tin đơn hàng tổng từ ViewBag được truyền từ hàm Details
+	var mainOrder = ViewBag.MainOrder as thuvienso.Models.Order;
+	ViewData["Title"] = "Chi Tiết Giao Dịch Lượt Quét";
+	Layout = "~/Views/Shared/Admin/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("~/Views/Shared/Admin/_Notification.cshtml")
+
+<div class="app-content-header">
+    <div class="container-fluid">
+
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+			<h3 class="mb-0">Lịch Sử Giao Dịch</h3>
+			<a keep-filter href="/admin/order" class="btn btn-sm btn-secondary">
+				<i class="bi bi-arrow-left"></i> Quay lại
+			</a>
+		</div>
+
+		@if (mainOrder != null)
+		{
+			<div class="mb-3 card">
+				<div class="card-body">
+					<table class="table table-hover text-nowrap" style="font-size: 0.9rem;">
+						<tbody>
+							<tr>
+								<td class="" style="width: 120px;">Đơn hàng:</td>
+								<td class=""><strong>#@mainOrder.Id</strong></td>
+							</tr>
+							<tr>
+								<td class="">Tài liệu:</td>
+								<td class="">@mainOrder.Document?.Title</td>
+							</tr>
+							<tr>
+								<td class="" style="vertical-align: top;">Khách hàng:</td>
+								<td class="px-3">
+									<span class="fw-bold text-dark">@mainOrder.User?.Name</span>
+									@if (!string.IsNullOrEmpty(mainOrder.User?.Phone) || !string.IsNullOrEmpty(mainOrder.User?.Email))
+									{
+										<div class="text-muted small mt-1" style="line-height: 1.3;">
+											@if (!string.IsNullOrEmpty(mainOrder.User?.Phone))
+											{
+												<i class="bi bi-telephone"></i> @mainOrder.User.Phone <br />
+											}
+											@if (!string.IsNullOrEmpty(mainOrder.User?.Email))
+											{
+												<i class="bi bi-envelope"></i> @mainOrder.User.Email
+											}
+										</div>
+									}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div> 
+			</div>
+		}
+
+
+    </div>
+</div>
+
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex flex-wrap">
+                        <form method="get" class="card-search mb-2 mt-4" style="flex-basis: 100%">
+                            <div class="row g-2 mb-2">
+                                <div class="col-3 flex-grow-1">
+                                    <input type="search" name="search" class="form-control"
+                                           placeholder="Mã giao dịch"
+                                           value="@ViewBag.Search" />
+                                </div>
+
+                                <div class="col-2">
+                                    <select name="status" class="form-control">
+                                        <option value="">Trạng thái</option>
+                                        <option value="pending" selected="@(ViewBag.Status == OrderStatus.pending)">Đang chờ</option>
+										<option value="paid" selected="@(ViewBag.Status == OrderStatus.paid)">Đã thanh toán</option>
+										<option value="canceled" selected="@(ViewBag.Status == OrderStatus.canceled)">Đã huỷ</option>
+                                        <option value="failed" selected="@(ViewBag.Status == OrderStatus.failed)">Thất bại</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-2">
+                                    <select name="percent" class="form-control">
+                                        <option value="">% Thanh toán</option>
+                                        <option value="25" selected="@(ViewBag.Percent?.ToString() == "25")">25%</option>
+                                        <option value="50" selected="@(ViewBag.Percent?.ToString() == "50")">50%</option>
+                                        <option value="100" selected="@(ViewBag.Percent?.ToString() == "100")">100%</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-2 form-floating">
+                                    <input type="date" class="form-control" id="fromDate" name="fromDate"
+                                           value="@ViewBag.FromDate" placeholder="Từ ngày" />
+                                    <label for="fromDate">Tạo link từ</label>
+                                </div>
+
+                                <div class="col-2 form-floating">
+                                    <input type="date" class="form-control" id="toDate" name="toDate"
+                                           value="@ViewBag.ToDate" placeholder="Đến ngày" />
+                                    <label for="toDate">Đến ngày</label>
+                                </div>
+
+                                <div class="col-1">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>ID Giao Dịch</th>
+                                    @* <th>Người mua</th> *@
+                                    <th>Mã đơn</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chi phí gốc</th>
+                                    <th>% Thanh toán</th>
+                                    <th>Số tiền đã thanh toán</th>
+                                    <th>QR</th>
+                                    <th>Link thanh toán</th>
+                                    <th>Thanh toán lúc</th>
+                                    <th>Tạo giao dịch lúc</th>
+                                </tr>
+                            </thead>
+							<tbody>
+								@if (Model != null && Model.Any())
+								{
+									foreach (var detail in Model)
+									{
+										var parentOrder = detail.Order; // Đơn hàng tổng (Order)
+										var user = parentOrder?.User;   // Người mua từ Order tổng
+
+										<tr>
+											<td>#@detail.Id</td>
+											<td>@detail.OrderCode</td>
+
+											<td>
+												@{
+													string badgeClass = "secondary";
+													string statusText = "Không rõ";
+
+													switch (detail.Status) 
+													{
+														case OrderStatus.paid:
+															badgeClass = "success";
+															statusText = "Đã thanh toán";
+															break;
+														case OrderStatus.pending:
+															badgeClass = "warning";
+															statusText = "Đang chờ quét";
+															break;
+														case OrderStatus.failed:
+															badgeClass = "danger";
+															statusText = "Thất bại";
+															break;
+														case OrderStatus.canceled:
+															badgeClass = "dark";
+															statusText = "Đã hủy";
+															break;
+													}
+												}
+												<span class="badge bg-@badgeClass">@statusText</span>
+											</td>
+
+											<td>@String.Format("{0:N0}đ", parentOrder?.TotalPrice ?? 0)</td>
+											<td>@(detail.PercentPaid)%</td>
+											<td>@String.Format("{0:N0}đ", detail.PricePaid)</td>
+
+
+
+
+											<td>
+												@if (!string.IsNullOrEmpty(detail.QrCodeUrl))
+												{
+													<img src="@detail.QrCodeUrl" style="height: 40px; width: 40px; object-fit: contain;" alt="QR Code" />
+												}
+												else
+												{
+													<span class="text-muted">---</span>
+												}
+											</td>
+
+											<td>
+												@if (!string.IsNullOrEmpty(detail.CheckoutUrl))
+												{
+													<a href="@detail.CheckoutUrl" target="_blank" class="btn btn-sm btn-outline-primary">Mở link</a>
+												}
+												else
+												{
+													<span class="text-muted">---</span>
+												}
+											</td>
+
+											<td>@(detail.Status == OrderStatus.paid ? detail.UpdatedAt.ToString("dd/MM/yyyy HH:mm") : "---")</td>
+
+											<td>@detail.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+										</tr>
+									}
+								}
+
+							</tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@{
+    var q = Context.Request.Query;
+    string queryString = "";
+
+    if (!string.IsNullOrEmpty(q["search"]))
+        queryString += $"search={q["search"]}&";
+
+    if (!string.IsNullOrEmpty(q["status"]))
+        queryString += $"status={q["status"]}&";
+
+    if (!string.IsNullOrEmpty(q["percent"]))
+        queryString += $"percent={q["percent"]}&";
+
+    if (!string.IsNullOrEmpty(q["fromDate"]))
+        queryString += $"fromDate={q["fromDate"]}&";
+
+    if (!string.IsNullOrEmpty(q["toDate"]))
+        queryString += $"toDate={q["toDate"]}&";
+
+    queryString = queryString.TrimEnd('&');
+}
+@await Html.PartialAsync("~/Views/Shared/Admin/_Pagination.cshtml", new {
+    CurrentPage = ViewBag.CurrentPage,
+    PageSize = ViewBag.PageSize,
+    TotalItems = ViewBag.TotalItems,
+    QueryString = queryString
+})

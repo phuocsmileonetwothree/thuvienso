@@ -1,75 +1,75 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using thuvienso.Data;
+using Microsoft.AspNetCore.Mvc;
+using thuvienso.Models;
+using thuvienso.Repositories;
 
-namespace thuvienso.Controllers.Admin
+namespace thuvienso.Controllers.Admin;
+
+/// <summary>
+/// Controller quản lý danh sách đơn hàng tổng và chi tiết hóa đơn con (OrderDetail) khu vực Admin.
+/// Tận dụng tối đa Pattern Repository để tối ưu bộ lọc tìm kiếm nâng cao và phân trang dữ liệu.
+/// </summary>
+[Route("admin/order")]
+public class OrderController : Controller
 {
-    [Route("admin/order")]
-    public class OrderController : Controller
+    private readonly OrderRepository _orderRepo;
+
+    public OrderController(OrderRepository orderRepo)
     {
-        private readonly AppDbContext _context;
+        _orderRepo = orderRepo;
+    }
 
-        public OrderController(AppDbContext context)
-        {
-            _context = context;
-        }
+    /// <summary>
+    /// Hiển thị danh sách đơn hàng tổng (Master Orders) kèm bộ lọc đa điều kiện và phân trang
+    /// </summary>
+    [HttpGet("")]
+    public async Task<IActionResult> Index(string? search, DateTime? fromDate, DateTime? toDate, int page = 1)
+    {
+        int pageSize = 10;
 
-        [HttpGet("")]
-        public async Task<IActionResult> Index(string? search, string? status, int? percent, DateTime? fromDate, DateTime? toDate, int page = 1)
-        {
-            int pageSize = 10;
-            var query = _context.Payments
-                .Include(o => o.User)
-                .Include(o => o.Document)
-                .AsQueryable();
+        // Fetch dữ liệu phẳng (dynamic) đã xử lý từ Repo
+        var (orders, totalItems) = await _orderRepo.GetPagedOrdersAsync(
+            search, fromDate, toDate, page, pageSize);
 
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                query = query.Where(o =>
-                    o.User.Name.Contains(search) ||
-                    o.User.Email.Contains(search) ||
-                    o.User.Phone.Contains(search) ||
-                    o.Document.Title.Contains(search) ||
-                    o.OrderCode.Contains(search));
-            }
+        ViewBag.Orders = orders;
 
-            if (!string.IsNullOrEmpty(status))
-            {
-                query = query.Where(o => o.PaymentStatus == status);
-            }
+        ViewBag.CurrentPage = page;
+        ViewBag.PageSize = pageSize;
+        ViewBag.TotalItems = totalItems;
+        ViewBag.Search = search;
+        ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+        ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
 
-            if (percent.HasValue)
-            {
-                query = query.Where(o => o.PercentPaid == percent);
-            }
+        return View("~/Views/Admin/Order/Index.cshtml");
+    }
 
-            if (fromDate.HasValue)
-            {
-                query = query.Where(o => o.CreatedAt >= fromDate);
-            }
+    /// <summary>
+    /// Xem chi tiết danh sách hóa đơn con (OrderDetails) thuộc một mã đơn hàng tổng xác định.
+    /// Hỗ trợ tìm kiếm, lọc trạng thái nội bộ và phân trang trên danh mục sản phẩm của đơn hàng.
+    /// </summary>
+    /// <param name="orderId">Mã định danh duy nhất của đơn hàng tổng</param>
+    [HttpGet("{orderId:int}/transactions")]
+    public async Task<IActionResult> Details(int orderId, string? search, OrderStatus? status, decimal? percent, DateTime? fromDate, DateTime? toDate, int page = 1)
+    {
+        int pageSize = 10;
 
-            if (toDate.HasValue)
-            {
-                query = query.Where(o => o.CreatedAt <= toDate);
-            }
+        // 1. Truy vấn danh sách chi tiết các hóa đơn con (OrderDetail) đã áp dụng bộ lọc và phân trang
+        var (details, totalItems) = await _orderRepo.GetPagedOrderDetailsAsync(
+            orderId, search, status, percent, fromDate, toDate, page, pageSize);
 
-            int totalItems = await query.CountAsync();
-            var orders = await query
-                .OrderByDescending(o => o.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+        // 2. Lấy thông tin thực thể đơn hàng tổng để hiển thị thông tin chung (Mã hóa đơn, người mua, tổng tiền) trên tiêu đề View
+        var mainOrder = await _orderRepo.FindByIdAsync(orderId);
 
-            ViewBag.CurrentPage = page;
-            ViewBag.PageSize = pageSize;
-            ViewBag.TotalItems = totalItems;
-            ViewBag.Search = search;
-            ViewBag.Status = status;
-            ViewBag.Percent = percent;
-            ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
-            ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
+        ViewBag.OrderId = orderId;
+        ViewBag.MainOrder = mainOrder;
+        ViewBag.CurrentPage = page;
+        ViewBag.PageSize = pageSize;
+        ViewBag.TotalItems = totalItems;
+        ViewBag.Search = search;
+        ViewBag.Status = status;
+        ViewBag.Percent = percent;
+        ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+        ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
 
-            return View("~/Views/Admin/Order/Index.cshtml", orders);
-        }
+        return View("~/Views/Admin/Order/Detail.cshtml", details);
     }
 }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="">
 
 
@@ -136,13 +136,13 @@
 							</ul>
 							<ul class="topbar-sosmed">
 								<li>
-									<a href="https://www.facebook.com/nomodo2304?locale=VI"><i class="fa fa-facebook"></i></a>
+									<a href=""><i class="fa fa-facebook"></i></a>
 								</li>
 								<li>
-									<a href="https://www.facebook.com/nomodo2304?locale=VI"><i class="fa fa-twitter"></i></a>
+									<a href=""><i class="fa fa-twitter"></i></a>
 								</li>
 								<li>
-									<a href="https://www.facebook.com/nomodo2304?locale=VI"><i class="fa fa-instagram"></i></a>
+									<a href=""><i class="fa fa-instagram"></i></a>
 								</li>
 							</ul>
 						</div>
@@ -168,7 +168,7 @@
 					</figure>
 
 					@using thuvienso.Data
-					@inject AppDbContext _context
+					@inject AppDbContext _context;
 					@using thuvienso.Helpers
 					@{
 						var allCategories = _context.Categories.ToList(); // Không async được
@@ -374,27 +374,27 @@
 										<ul class="list-inline">
 
 											<li class="list-inline-item">
-												<a href="https://www.facebook.com/nomodo2304?locale=VI" class="btn btn-social rounded text-white facebook">
+												<a href="" class="btn btn-social rounded text-white facebook">
 													<i class="fa fa-facebook"></i>
 												</a>
 											</li>
 											<li class="list-inline-item">
-												<a href="https://www.facebook.com/nomodo2304?locale=VI" class="btn btn-social rounded text-white twitter">
+												<a href="" class="btn btn-social rounded text-white twitter">
 													<i class="fa fa-twitter"></i>
 												</a>
 											</li>
 											<li class="list-inline-item">
-												<a href="https://www.facebook.com/nomodo2304?locale=VI" class="btn btn-social rounded text-white whatsapp">
+												<a href="" class="btn btn-social rounded text-white whatsapp">
 													<i class="fa fa-whatsapp"></i>
 												</a>
 											</li>
 											<li class="list-inline-item">
-												<a href="https://www.facebook.com/nomodo2304?locale=VI" class="btn btn-social rounded text-white telegram">
+												<a href="" class="btn btn-social rounded text-white telegram">
 													<i class="fa fa-telegram"></i>
 												</a>
 											</li>
 											<li class="list-inline-item">
-												<a href="https://www.facebook.com/nomodo2304?locale=VI" class="btn btn-social rounded text-white linkedin">
+												<a href="" class="btn btn-social rounded text-white linkedin">
 													<i class="fa fa-linkedin"></i>
 												</a>
 											</li>
@@ -430,8 +430,8 @@
 									<ul class="list-inline">
 										<li class="list-inline-item">
 											<span>
-												Copyright © 2019
-												by <a href="https://www.facebook.com/nomodo2304?locale=VI">retenvi</a>
+												Copyright © 2025
+												by <a href="">thuvienso</a>
 											</span>
 										</li>
 									</ul>
@@ -464,7 +464,7 @@
 
     
     <a href="javascript:" id="return-to-top"><i class="fa fa-chevron-up"></i></a>
-    
+	<script src="~/lib/microsoft-signalr/signalr.js"></script>
     <script src="/user/js/index.bundle3875.js?1fcca2a2c42e9d47a3eb"></script>
 	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>

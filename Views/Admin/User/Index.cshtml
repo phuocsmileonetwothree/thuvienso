@@ -1,4 +1,4 @@
-﻿@model List<thuvienso.Models.User>
+@model List<thuvienso.Models.User>
 @{
     ViewData["Title"] = "Trang Danh Sách Người Dùng";
     Layout = "~/Views/Shared/Admin/_Layout.cshtml";
@@ -34,9 +34,9 @@
                                 <!-- Chọn vai trò -->
                                 <div class="col-2">
                                     <select name="role" class="form-control">
-                                        <option value="">-- Chọn vai trò --</option>
+                                        <option value="">Chọn vai trò</option>
                                         <option value="admin" selected="@(Context.Request.Query["role"] == "admin")">Quản trị viên</option>
-                                        <option value="user" selected="@(Context.Request.Query["role"] == "user")">Người dùng</option>
+                                        <option value="user" selected="@(Context.Request.Query["role"] == "user")">Khách hàng</option>
                                     </select>
                                 </div>
 
@@ -75,7 +75,7 @@
                                             <td>@item.Email</td>
                                             <td>@item.Phone</td>
                                             <td>
-                                                @if (item.Role == "admin")
+                                                @if (item.Role == UserRole.admin)
                                                 {
                                                     <span class="badge bg-danger">Admin</span>
                                                 }

@@ -1,1 +1,1 @@
-server=localhost;database=thuviensodb;user=root;password=;
+server=localhost;database=thuvienso;user=root;password=;Allow User Variables=true

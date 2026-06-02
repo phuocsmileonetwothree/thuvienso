@@ -1,1 +1,1 @@
-App bắt đầu chạy
+Application started successfully.
